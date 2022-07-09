@@ -63,6 +63,20 @@ class User:
         else:
             return None
 
+    # Wyszukiwanie usera po nazwie
+    @staticmethod
+    def load_user_by_username(cursor, username):
+        sql = """SELECT id, username, hashed_password FROM users
+                WHERE username=%s"""
+        cursor.execute(sql, (username,))
+        data = cursor.fetchone()
+        if data:
+            user_id, username, hashed_password = data
+            loaded_user = User(username)
+            loaded_user._id = user_id
+            loaded_user._hashed_password = hashed_password
+            return loaded_user
+
     # Wczytanie wiele obiektów
     @staticmethod
     def load_all_users(cursor):
@@ -113,3 +127,7 @@ get_user = u2.load_user_by_id(cur, 7)
 print(get_user.username)
 delete_user = u5.delete_user(cur)
 print(delete_user)
+
+u6 = User()
+get_user = u6.load_user_by_username(cur, 'user_testowy')
+print(get_user.username)
