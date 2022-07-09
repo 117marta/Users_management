@@ -41,6 +41,22 @@ class User:
             return True
         return False
 
+    # Wczytanie jednego rzędu z BD i zamienienie go w obiekt
+    @staticmethod  # funkcja jest statyczna (wywołujemy ją na klasie, a nie na obiekcie)
+    def load_user_by_id(cursor, user_id):
+        sql = """SELECT id, username, hashed_password FROM users
+                WHERE id=%s"""
+        cursor.execute(sql, (user_id,))
+        data = cursor.fetchone()
+        if data:
+            user_id, username, hashed_password = data  # rozpakowanie danych do odpowiednich zmiennych
+            loaded_user = User(username)  # jesteśmy w środku klasy (dostęp do własności niedostępnych na zewnątrz)
+            loaded_user._id = user_id
+            loaded_user._hashed_password = hashed_password  # hasło z BD w formie zahaszowanej (nie używamy settera)
+            return loaded_user
+        else:
+            return None
+
 
 ########################################################################################################################
 # Do testowania...
@@ -51,3 +67,7 @@ cur = cnx.cursor()
 
 u1 = User('user_1', 'silne_hasło', 'gYrcy8xsm49lIq1r')
 u1.save_to_db(cur)
+
+u2 = User()
+get_user = u2.load_user_by_id(cur, 1)
+print(get_user.username)
