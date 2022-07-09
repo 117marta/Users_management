@@ -39,7 +39,7 @@ class User:
             self._id = cursor.fetchone()[0]  # przypisujemy klucz główny jako id (jeśli udało się zapisać obiekt do BD)
             # self._id = cursor.fetchone()['id']
             return True
-        # Modyfikacja obiektu
+        # Modyfikacja obiektu (user w bazie)
         else:
             sql = """UPDATE users SET username=%s, hasehed_password=%s
                     WHERE id=%s"""
@@ -78,6 +78,13 @@ class User:
             users.append(loaded_user)
         return users
 
+    # Usunięcie obiektu z BD
+    def delete_user(self, cursor):
+        sql = "DELETE FROM users WHERE id=%s"
+        cursor.execute(sql, (self.id,))
+        self._id = -1  # obiekt został usunięty (więc jego id to -1)
+        return True
+
 
 ########################################################################################################################
 # Do testowania...
@@ -93,10 +100,16 @@ u2 = User()
 get_user = u2.load_user_by_id(cur, 1)
 print(get_user.username)
 
-u3 = User
+u3 = User()
 get_users = u3.load_all_users(cur)
 print(get_users)
 
-u4 = User('user_zmodyfikowany', 'silne_hasło2', 'gYrcy8xsm49lIq1r')
-update_user = u4.save_to_db(cur)
-print('uuuu', update_user)
+# u4 = User('user_zmodyfikowany', 'silne_hasło2', 'gYrcy8xsm49lIq1r')
+# update_user = u4.save_to_db(cur)
+# print(update_user)
+
+u5 = User()
+get_user = u2.load_user_by_id(cur, 7)
+print(get_user.username)
+delete_user = u5.delete_user(cur)
+print(delete_user)
