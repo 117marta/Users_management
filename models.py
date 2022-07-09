@@ -10,9 +10,9 @@ class User:
     def __init__(self, username="", password="", salt=""):
         # nie powinien być dostępny do edycji z zewnątrz - poza klasą (_id)
         # nowo utworzony obiekt nie będzie od razu synchronizowany (-1). Dane z DB != -1
-        self._id = -1
+        self._id = -1  # tylko do odczytu
         self.username = username
-        self._hashed_password = hash_password(password, salt)
+        self._hashed_password = hash_password(password, salt)  # tylko do odczytu
 
     @property  # udostępniamy na zewnątrz klasy
     def id(self):  # id trzyma klucz główny lub wartość -1
@@ -48,7 +48,7 @@ class User:
             return True
 
     # Wczytanie jednego rzędu z BD i zamienienie go w obiekt
-    @staticmethod  # funkcja jest statyczna (wywołujemy ją na klasie, a nie na obiekcie)
+    @staticmethod  # funkcja jest statyczna (wywołujemy ją na klasie, a nie na obiekcie). Nie potrzeba instacji obiektu (usera) żeby wczytać innych użytkowników
     def load_user_by_id(cursor, user_id):
         sql = """SELECT id, username, hashed_password FROM users
                 WHERE id=%s"""
@@ -98,6 +98,25 @@ class User:
         cursor.execute(sql, (self.id,))
         self._id = -1  # obiekt został usunięty (więc jego id to -1)
         return True
+
+
+# MESSAGE CLASS
+class Message:
+
+    def __int__(self, from_id, to_id, text):
+        self._id = -1
+        self.from_id = from_id
+        self.to_id = to_id
+        self.text = text
+        self._created = None
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def created(self):
+        return self._created
 
 
 ########################################################################################################################
