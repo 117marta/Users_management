@@ -39,7 +39,13 @@ class User:
             self._id = cursor.fetchone()[0]  # przypisujemy klucz główny jako id (jeśli udało się zapisać obiekt do BD)
             # self._id = cursor.fetchone()['id']
             return True
-        return False
+        # Modyfikacja obiektu
+        else:
+            sql = """UPDATE users SET username=%s, hasehed_password=%s
+                    WHERE id=%s"""
+            values = (self.username, self.hashed_password, self.id)
+            cursor.execute(sql, values)
+            return True
 
     # Wczytanie jednego rzędu z BD i zamienienie go w obiekt
     @staticmethod  # funkcja jest statyczna (wywołujemy ją na klasie, a nie na obiekcie)
@@ -80,8 +86,8 @@ cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=DB_NAME
 cnx.autocommit = True
 cur = cnx.cursor()
 
-u1 = User('user_1', 'silne_hasło', 'gYrcy8xsm49lIq1r')
-u1.save_to_db(cur)
+# u1 = User('user_1', 'silne_hasło', 'gYrcy8xsm49lIq1r')
+# u1.save_to_db(cur)
 
 u2 = User()
 get_user = u2.load_user_by_id(cur, 1)
@@ -90,3 +96,7 @@ print(get_user.username)
 u3 = User
 get_users = u3.load_all_users(cur)
 print(get_users)
+
+u4 = User('user_zmodyfikowany', 'silne_hasło2', 'gYrcy8xsm49lIq1r')
+update_user = u4.save_to_db(cur)
+print('uuuu', update_user)
