@@ -57,6 +57,21 @@ class User:
         else:
             return None
 
+    # Wczytanie wiele obiektów
+    @staticmethod
+    def load_all_users(cursor):
+        sql = "SELECT id, username, hashed_password FROM Users"
+        users = []
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            user_id, username, hashed_password = row
+            loaded_user = User()
+            loaded_user._id = user_id
+            loaded_user.username = username
+            loaded_user._hashed_password = hashed_password
+            users.append(loaded_user)
+        return users
+
 
 ########################################################################################################################
 # Do testowania...
@@ -71,3 +86,7 @@ u1.save_to_db(cur)
 u2 = User()
 get_user = u2.load_user_by_id(cur, 1)
 print(get_user.username)
+
+u3 = User
+get_users = u3.load_all_users(cur)
+print(get_users)
