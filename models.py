@@ -84,6 +84,7 @@ class User:
         users = []
         cursor.execute(sql)
         for row in cursor.fetchall():
+            # (7, 'kolejny_user4', 'sol_do_hashowanib624e0de9d7f94c5a4b550c7009826f47b7e17b3fca21fc08efaf290f802bd39')
             user_id, username, hashed_password = row
             loaded_user = User()
             loaded_user._id = user_id
@@ -101,6 +102,7 @@ class User:
 
 
 # MESSAGE CLASS
+
 class Message:
 
     def __init__(self, from_id, to_id, text):
@@ -134,6 +136,25 @@ class Message:
             cursor.execute(sql, values)
             return True
 
+    # Załadowanie wiadomości
+    @staticmethod
+    def load_all_messages(cursor, msg_id=None):
+        if msg_id:
+            sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE id=%s"
+            cursor.execute(sql, (msg_id,))
+        else:
+            sql = "SELECT id, from_id, to_id, text, created FROM messages"
+            cursor.execute(sql)
+        messages = []
+        for row in cursor.fetchall():
+            # (5, 4, 9, 'Wiadomość testowa!', datetime.datetime(2022, 7, 10, 19, 48, 27, 934419))
+            user_id, from_id, to_id, text, created = row
+            loaded_message = Message(from_id, to_id, text)
+            loaded_message._id = user_id
+            loaded_message._created = created
+            messages.append(loaded_message)
+        return messages
+
 
 ########################################################################################################################
 # Do testowania...
@@ -147,11 +168,11 @@ cur = cnx.cursor()
 
 u2 = User()
 get_user = u2.load_user_by_id(cur, 1)
-print(get_user.username)
+print('u2:', get_user.username)
 
 u3 = User()
 get_users = u3.load_all_users(cur)
-print(get_users)
+print('u3:', get_users)
 
 # u4 = User('user_zmodyfikowany', 'silne_hasło2', 'gYrcy8xsm49lIq1r')
 # update_user = u4.save_to_db(cur)
@@ -159,13 +180,21 @@ print(get_users)
 
 u5 = User()
 get_user = u2.load_user_by_id(cur, 7)
-print(get_user.username)
+print('u5:', get_user.username)
 delete_user = u5.delete_user(cur)
-print(delete_user)
 
 u6 = User()
 get_user = u6.load_user_by_username(cur, 'user_testowy')
-print(get_user.username)
+print('u6:', get_user.username)
 
-m1 = Message(4, 9, 'Wiadomość testowa!')
-m1.save_to_db(cur)
+# m1 = Message(4, 9, 'Wiadomość testowa!')
+# m1.save_to_db(cur)
+# m1 = Message(1, 7, 'Wiadomość dnia!!!')
+# m1.save_to_db(cur)
+
+m2 = Message(1, 7, 'Wiadomość dnia!!!')
+get_msgs = m2.load_all_messages(cur)  # wszystkie wiadomości
+# get_msgs = m2.load_all_messages(cur, 20)  # wiadomość o podanym id
+print(get_msgs)
+for m in get_msgs:
+    print('M:', m.text)
