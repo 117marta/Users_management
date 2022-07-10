@@ -62,3 +62,26 @@ def list_all_users(cur):
     users = User.load_all_users(cur)
     for user in users:
         print(user.username)
+
+
+# Główna część programu
+if __name__ == '__main__':
+    try:
+        cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=DB_NAME)
+        cnx.autocommit = True
+        cursor = cnx.cursor()
+        if args.username and args.password and args.edit and args.new_pass:
+            edit_user(cursor, args.username, args.password and args.new_pass)
+        elif args.username and args.password and args.delete:
+            delete_user(cursor, args.username, args.password)
+        elif args.username and args.password:
+            create_user(cursor, args.username, args.password)
+        elif args.list:
+            list_all_users(cursor)
+        else:
+            parser.print_help()
+    except OperationalError as e:
+        print('Connection error!', e)
+    finally:
+        cursor.close()
+        cnx.close()
