@@ -103,7 +103,7 @@ class User:
 # MESSAGE CLASS
 class Message:
 
-    def __int__(self, from_id, to_id, text):
+    def __init__(self, from_id, to_id, text):
         self._id = -1
         self.from_id = from_id
         self.to_id = to_id
@@ -117,6 +117,22 @@ class Message:
     @property
     def created(self):
         return self._created
+
+    # Zapisanie wiadomości do BD
+    def save_to_db(self, cursor):
+        if self._id == -1:
+            sql = """INSERT INTO messages(from_id, to_id, text)
+                            VALUES (%s, %s, %s) RETURNING id, created"""
+            values = (self.from_id, self.to_id, self.text)
+            cursor.execute(sql, values)
+            self._id, self._created = cursor.fetchone()  # fetchone() zwraca krotkę
+            return True
+        else:
+            sql = """UPDATE messages SET from_id=%s, to_id=%s, text=%s
+                    WHERE id=%s"""
+            values = (self.from_id, self.to_id, self.text, self.id)
+            cursor.execute(sql, values)
+            return True
 
 
 ########################################################################################################################
@@ -150,3 +166,6 @@ print(delete_user)
 u6 = User()
 get_user = u6.load_user_by_username(cur, 'user_testowy')
 print(get_user.username)
+
+m1 = Message(4, 9, 'Wiadomość testowa!')
+m1.save_to_db(cur)
