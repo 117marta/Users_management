@@ -128,5 +128,12 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+### VisualStudioCode ###
+.vscode/*
+tags
+
+.idea/*
+*.iml
+
 # Confidential
 confidential.py
