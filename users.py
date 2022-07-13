@@ -60,8 +60,12 @@ def edit_user(cur, username, password, new_password):
 
 def list_all_users(cur):
     users = User.load_all_users(cur)
-    for user in users:
-        print(user.username)
+    # counter = 1
+    # for user in users:
+    #     print(f'{counter}. user: {user.username}')
+    #     counter += 1
+    for i, user in enumerate(users):
+        print(f'{i+1}. user: {user.username}')
 
 
 # Główna część programu
@@ -71,7 +75,7 @@ if __name__ == '__main__':
         cnx.autocommit = True
         cursor = cnx.cursor()
         if args.username and args.password and args.edit and args.new_pass:
-            edit_user(cursor, args.username, args.password and args.new_pass)
+            edit_user(cursor, args.username, args.password, args.new_pass)
         elif args.username and args.password and args.delete:
             delete_user(cursor, args.username, args.password)
         elif args.username and args.password:
@@ -85,3 +89,9 @@ if __name__ == '__main__':
     finally:
         cursor.close()
         cnx.close()
+
+
+# python users.py -u new_user -p password
+# python users.py -u new_user -p password -n new_password -e
+# python users.py -u new_user -p password -d
+# python users.py -l

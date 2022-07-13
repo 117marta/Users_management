@@ -41,7 +41,7 @@ class User:
             return True
         # Modyfikacja obiektu (user w bazie)
         else:
-            sql = """UPDATE users SET username=%s, hasehed_password=%s
+            sql = """UPDATE users SET username=%s, hashed_password=%s
                     WHERE id=%s"""
             values = (self.username, self.hashed_password, self.id)
             cursor.execute(sql, values)
