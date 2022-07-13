@@ -3,9 +3,10 @@ import random
 import hashlib
 
 
-ALPHABET = string.ascii_uppercase + string.ascii_lowercase + string.digits
+CHARS = string.ascii_uppercase + string.ascii_lowercase + string.digits
 """
 Global variable that keeps all uppercase and lower letter and all digits
+Output: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789
 """
 
 
@@ -18,7 +19,7 @@ def generate_salt():
     """
     salt = ""
     for i in range(0, 16):
-        salt += random.choice(ALPHABET)
+        salt += random.choice(CHARS)
     return salt
 
 
