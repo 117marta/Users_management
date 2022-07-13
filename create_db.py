@@ -19,28 +19,28 @@ CREATE_MESSAGES_TABLE = """CREATE TABLE messages(
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"""
 
 
-#  CREATE DATABASE
+# CREATE DATABASE
 try:
     cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST)  # łączenie się z serwerem
     cnx.autocommit = True  # transakcje wyłączone
+    cur = cnx.cursor()  # # utworzenie kursora (wysłanie zapytania przez cursor)
     print('Connected successfully!')
     try:
-        cur = cnx.cursor()  # wysyłanie zapytania przez cursor
         cur.execute(CREATE_DB)  # zapytanie do BD
         print('Database created!')
     except DuplicateDatabase as err:
         print("Database exists!", err)
-except OperationalError as err:
-    print('Connection error!', err)
+    except OperationalError as err:
+        print('Connection error!', err)
 finally:
     cur.close()
     cnx.close()
 
 
-#  CREATE TABLES
+# CREATE TABLES
 def execute_sql(sql, db):
     try:
-        connexion = connect(user=DB_USER, password=DB_PASSWORD, database=db, host=DB_HOST)  # connection to created DB
+        connexion = connect(user=DB_USER, password=DB_PASSWORD, database=db, host=DB_HOST)  # połączenie z utworzoną BD
         connexion.autocommit = True
         cursor = connexion.cursor()
         try:
