@@ -138,10 +138,10 @@ class Message:
 
     # Załadowanie wiadomości
     @staticmethod
-    def load_all_messages(cursor, to_user=None):
-        if to_user:
+    def load_all_messages(cursor, recipient=None):
+        if recipient:
             sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"
-            cursor.execute(sql, (to_user,))
+            cursor.execute(sql, (recipient,))
         else:
             sql = "SELECT id, from_id, to_id, text, created FROM messages"
             cursor.execute(sql)
