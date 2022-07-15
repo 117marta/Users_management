@@ -21,17 +21,17 @@ args = parser.parse_args()
 def send_message(cur, sender_name, recipent_name, text):
     if len(text) > 255:
         print('Message is too long!')
-    to = User.load_user_by_username(cur, recipent_name)
-    if to:
-        message = Message(from_id=sender_name, to_id=to.id, text=text)
+    send_to_user = User.load_user_by_username(cur, recipent_name)
+    if send_to_user:
+        message = Message(from_id=sender_name, to_id=send_to_user.id, text=text)
         message.save_to_db(cur)
         print('Message sent!')
     else:
         print('Recipent does not exists!')
 
 
-def print_all_user_messages(cur, user_id):
-    user_messages = Message.load_all_messages(cursor=cur, user_id=user_id.id)
+def print_all_user_messages(cur, to_user):
+    user_messages = Message.load_all_messages(cursor=cur, to_user=to_user.id)
     for message in user_messages:
         from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
         print(f'from: {from_.username}', f'data: {message.created}', message.text, 100 * '*', sep='\n')
@@ -47,7 +47,7 @@ if __name__ == '__main__':
             user = User.load_user_by_username(cursor=cursor, username=args.username)
             if check_password(pass_to_check=args.password, pass_hashed=user.hashed_password):
                 if args.list:
-                    print_all_user_messages(cur=cursor, user_id=user)
+                    print_all_user_messages(cur=cursor, to_user=user)
                 elif args.to and args.send:
                     send_message(cur=cursor, sender_name=user.id, recipent_name=args.to, text=args.send)
                 else:
@@ -57,22 +57,6 @@ if __name__ == '__main__':
         else:
             print('Username and password are required!')
             parser.print_help()
-
-        # if args.username and args.password:
-        #     user = User.load_user_by_username(cursor, args.username)
-        #     if check_password(args.password, user.hashed_password):
-        #         if args.list:
-        #             print_all_user_messages(cursor, user)
-        #         elif args.to and args.send:
-        #             send_message(cursor, user.id, args.to, args.send)
-        #         else:
-        #             parser.print_help()
-        #     else:
-        #         print("Incorrect password or User does not exists!")
-        # else:
-        #     print("username and password are required")
-        #     parser.print_help()
-
     except OperationalError as e:
         print('Connection error!', e)
     finally:
