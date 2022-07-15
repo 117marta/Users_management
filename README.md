@@ -11,6 +11,7 @@ Simple messaging server.
 * [Setup](#setup)
 * [Usage](#usage)
 * [Project Status](#project-status)
+* [Contact](#contact)
 
 
 ## General info
@@ -20,8 +21,7 @@ The aim of this project was to learn how to integrate databases with object-orie
 ## Technologies Used
 Project was created with:
 * Python version: 3.6.9
-* Django version: 3.2.11
-* Psycopg2-binary version: 2.9.3
+* psycopg2-binary version: 2.9.3
 
 
 ## Features
@@ -48,7 +48,7 @@ following cases: the data held in its attributes is not the same as the data in 
 in the database fot the attributes of the object. Out of sync occurs in the following case: create a new object (there
 is no corresponding row); delete a row from the database; changes of any attribute after the last synchronization; row
 change in the database after last synchronization.
-* File 'users.py': a simple console application for user management. It should handle parameters passed to it from the
+* File `users.py`: a simple console application for user management. It should handle parameters passed to it from the
 console level - argparse library was used for it.
 * File `messages.py`: another console application that allows to send messages between users. 
 
@@ -62,15 +62,18 @@ console level - argparse library was used for it.
 ## Setup
 Project requirements are in _requirements.txt_. <br>
 To get started:
-* `pip install -r requirements.txt`
+* ```pip install -r requirements.txt```
 
 
 ## Usage
-* After you clone this repo to your desktop, go to its root directory and run `pip install -r requirements.txt`
+* After you clone this repo to your desktop, go to its root directory and run ```pip install -r requirements.txt```
 to install its dependencies
-
-* You will be able to access it from console, for example when you want to list all users: `python users.py -l`
+* You will be able to access it from console, for example when you want to list all users: ```python users.py -l```
 
 
 ## Project Status
 Project is _complete_.
+
+
+## Contact
+Created by 117marta - feel free to contact me!
