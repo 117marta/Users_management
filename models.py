@@ -138,16 +138,25 @@ class Message:
 
     # Załadowanie wiadomości
     @staticmethod
-    def load_all_messages(cursor, recipient=None, sender=None):
-        if recipient:
-            sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"
-            cursor.execute(sql, (recipient,))
-        elif sender:
-            sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE from_id=%s"
-            cursor.execute(sql, (sender,))
-        else:
-            sql = "SELECT id, from_id, to_id, text, created FROM messages"
-            cursor.execute(sql)
+    def load_all_messages(cursor, sender, recipient):
+        if sender and recipient:
+            # sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE (from_id=%s and to_id=%s)"
+
+            sql = """SELECT id, from_id, to_id, text, created FROM messages WHERE from_id=%s
+            INTERSECT
+            SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"""
+            cursor.execute(sql, (sender, recipient,))
+
+        # if recipient and not sender:
+        #     sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"
+        #     cursor.execute(sql, (recipient,))
+
+        # if sender and not recipient:
+        #     sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE from_id=%s"
+        #     cursor.execute(sql, (sender,))
+        # else:
+        #     sql = "SELECT id, from_id, to_id, text, created FROM messages"
+        #     cursor.execute(sql)
         messages = []
         for row in cursor.fetchall():
             # (5, 4, 9, 'Wiadomość testowa!', datetime.datetime(2022, 7, 10, 19, 48, 27, 934419))
@@ -195,9 +204,9 @@ get_user = u6.load_user_by_username(cur, 'user_testowy')
 # m1 = Message(1, 7, 'Wiadomość dnia!!!')
 # m1.save_to_db(cur)
 
-m2 = Message(1, 7, 'Wiadomość dnia!!!')
+# m2 = Message(1, 7, 'Wiadomość dnia!!!')
 # get_msgs = m2.load_all_messages(cur)  # wszystkie wiadomości
-get_msgs = m2.load_all_messages(cur, 30)  # wiadomości do adresata o podanym id
-# print(get_msgs)
+# get_msgs = m2.load_all_messages(cur, 30)  # wiadomości do adresata o podanym id
+# print(g   et_msgs)
 # for m in get_msgs:
 #     print('M:', m.text)

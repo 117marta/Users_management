@@ -31,14 +31,37 @@ def send_message(cur, sender_name, recipient_name, text):
 
 
 def print_all_user_messages(cur, user_recipient=None, user_sender=None):
-    if user_sender:
-        messages = Message.load_all_messages(cursor=cur, sender=user_sender.id)
-    if user_recipient:
-        messages = Message.load_all_messages(cursor=cur, recipient=user_recipient.id)
+    messages = Message.load_all_messages(
+        cursor=cur,
+        sender=user_sender.id if user_sender else None,
+        recipient=user_recipient.id if user_recipient else None,
+    )
     for message in messages:
-        if user_recipient:  # DO KOGO, OD KOGO?
+        if user_sender and user_recipient:  # OD KOGO DO KOGO?
+            to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
+            print(f'to: {to_.username}', f'data: {message.created}', message.text, 100 * '*', sep='\n')
+        if user_recipient and not user_sender:  # DO KOGO, OD KOGO?
             from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
             print(f'from: {from_.username}', f'data: {message.created}', message.text, 100 * '*', sep='\n')
+
+
+
+    # if user_sender and user_recipient:
+    #     messages = Message.load_all_messages(cursor=cur, sender=user_sender.id, recipient=user_recipient.id)
+    # if user_sender and not user_recipient:
+    # # if not user_recipient:
+    #     messages = Message.load_all_messages(cursor=cur, sender=user_sender.id)
+    # if user_recipient and not user_sender:
+    # # if not user_sender:
+    #     messages = Message.load_all_messages(cursor=cur, recipient=user_recipient.id)
+    # for message in messages:
+    #     if user_recipient and not user_sender:  # DO KOGO, OD KOGO?
+    #         from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
+    #         print(f'from: {from_.username}', f'data: {message.created}', message.text, 100 * '*', sep='\n')
+    #     if user_sender and user_recipient:  # OD KOGO DO KOGO?
+    #         # pass
+    #         to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
+    #         print(f'to: {to_.username}', f'data: {message.created}', message.text, 100 * '*', sep='\n')
 
 
 # Główna część programu
@@ -50,11 +73,11 @@ if __name__ == '__main__':
         if args.username and args.password:
             user = User.load_user_by_username(cursor=cursor, username=args.username)
             if check_password(pass_to_check=args.password, pass_hashed=user.hashed_password):
+                if args.list and args.to:  # Chcę DO KOGO (from_id) NADAWCĄ jestem
+                    recipient_ = User.load_user_by_username(cursor=cursor, username=args.to)
+                    print_all_user_messages(cur=cursor, user_sender=user, user_recipient=recipient_)
                 if args.list:  # Chcę OD KOGO (WIADOMOŚĆ to_id) ADRESATEM jestem
                     print_all_user_messages(cur=cursor, user_recipient=user)  # OK
-                    if args.to:  #  Chcę DO KOGO (from_id) NADAWCĄ jestem
-                        sender_ = User.load_user_by_username(cursor=cursor, username=args.to)
-                        print_all_user_messages(cur=cursor, user_sender=sender_)
                 elif args.to and args.send:
                     send_message(cur=cursor, sender_name=user.id, recipient_name=args.to, text=args.send)
                 else:
