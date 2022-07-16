@@ -139,24 +139,12 @@ class Message:
     # Załadowanie wiadomości
     @staticmethod
     def load_all_messages(cursor, sender, recipient):
-        if sender and recipient:
-            # sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE (from_id=%s and to_id=%s)"
-
-            sql = """SELECT id, from_id, to_id, text, created FROM messages WHERE from_id=%s
-            INTERSECT
-            SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"""
-            cursor.execute(sql, (sender, recipient,))
-
-        # if recipient and not sender:
-        #     sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"
-        #     cursor.execute(sql, (recipient,))
-
-        # if sender and not recipient:
-        #     sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE from_id=%s"
-        #     cursor.execute(sql, (sender,))
-        # else:
-        #     sql = "SELECT id, from_id, to_id, text, created FROM messages"
-        #     cursor.execute(sql)
+        if recipient:
+            sql = "SELECT id, from_id, to_id, text, created FROM messages WHERE to_id=%s"
+            cursor.execute(sql, (recipient,))
+        else:
+            sql = "SELECT id, from_id, to_id, text, created FROM messages"
+            cursor.execute(sql)
         messages = []
         for row in cursor.fetchall():
             # (5, 4, 9, 'Wiadomość testowa!', datetime.datetime(2022, 7, 10, 19, 48, 27, 934419))
