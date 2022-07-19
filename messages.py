@@ -9,7 +9,8 @@ from password import check_password
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--username', help='username')
 parser.add_argument('-p', '--password', help='password (min. 5 characters)')
-parser.add_argument('-l', '--list', help='list of all messages', action='store_true')  # czy parametr jest ustawiony
+parser.add_argument('-i', '--inbox', help='list of all inbox messages', action='store_true')  # czy parametr jest ustawiony (nie wymaga przekazania wartości)
+parser.add_argument('-o', '--outbox', help='list of all outbox messages', action='store_true')
 parser.add_argument('-t', '--to', help='to')
 parser.add_argument('-s', '--send', help='send message', type=str)  # żeby wiadomość była ze spacjami (pisać w "...")
 
@@ -39,7 +40,12 @@ def print_all_user_messages(cur, user_recipient=None, user_sender=None):
     for message in messages:
         if user_recipient:
             from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
-            print(f'From: {from_.username}', f'Data: {message.created}', message.text, 100 * '*', sep='\n')
+            to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
+            print(f'From: {from_.username}', f'To: {to_.username}', f'Data: {message.created}', message.text, 100 * '*', sep='\n')
+        if user_sender:
+            from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
+            to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
+            print(f' From: {from_.username}\n To: {to_.username}\n Data: {message.created}\n {message.text}\n {100 * "*"}')
 
 
 # Główna część programu
@@ -51,13 +57,12 @@ if __name__ == '__main__':
         if args.username and args.password:
             user = User.load_user_by_username(cursor=cursor, username=args.username)
             if check_password(pass_to_check=args.password, pass_hashed=user.hashed_password):
-                # if args.list and args.to:  # Chcę DO KOGO (from_id) NADAWCĄ jestem
-                #     recipient_ = User.load_user_by_username(cursor=cursor, username=args.to)
-                #     print_all_user_messages(cur=cursor, user_sender=user, user_recipient=recipient_)
-                if args.list:  # Chcę OD KOGO (WIADOMOŚĆ to_id) ADRESATEM jestem
-                    print_all_user_messages(cur=cursor, user_recipient=user)  # OK
-                elif args.to and args.send:
+                if args.to and args.send:
                     send_message(cur=cursor, sender_name=user.id, recipient_name=args.to, text=args.send)
+                elif args.inbox:  # Chcę OD KOGO (WIADOMOŚĆ to_id) ADRESATEM jestem
+                    print_all_user_messages(cur=cursor, user_recipient=user)
+                elif args.outbox:  # Chcę DO KOGO (WIADOMOŚĆ from_id) NADAWCĄ jestem
+                    print_all_user_messages(cur=cursor, user_sender=user)  # OK
                 else:
                     parser.print_help()
             else:
@@ -72,5 +77,5 @@ if __name__ == '__main__':
         cnx.close()
 
 
-# python messages.py -u new_user -p new_password -l
-# python messages.py -u new_user -p new_password -t kolejny_user -s "Wysyłam wiadomość do kolejny_user."
+# INBOX: python messages.py -u Green -p Bottle123 -i
+# OUTBOX: python messages.py -u Green -p Bottle123 -o
