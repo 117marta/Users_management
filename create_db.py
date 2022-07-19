@@ -20,32 +20,33 @@ CREATE_MESSAGES_TABLE = """CREATE TABLE messages(
 
 
 # CREATE DATABASE
-try:
-    cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST)  # łączenie się z serwerem
-    cnx.autocommit = True  # transakcje wyłączone
-    cur = cnx.cursor()  # # utworzenie kursora (wysłanie zapytania przez cursor)
-    print('Connected successfully!')
+def create_database():
     try:
-        cur.execute(CREATE_DB)  # zapytanie do BD
-        print('Database created!')
-    except DuplicateDatabase as err:
-        print("Database exists!", err)
-    except OperationalError as err:
-        print('Connection error!', err)
-finally:
-    cur.close()
-    cnx.close()
+        cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST)  # łączenie się z serwerem
+        cnx.autocommit = True  # transakcje wyłączone
+        cur = cnx.cursor()  # utworzenie kursora (wysłanie zapytania przez cursor)
+        print('Connected successfully!')
+        try:
+            cur.execute(CREATE_DB)  # zapytanie do BD
+            print('Database created!')
+        except DuplicateDatabase as err:
+            print("Database exists!", err)
+        except OperationalError as err:
+            print('Connection error!', err)
+    finally:
+        cur.close()
+        cnx.close()
 
 
 # CREATE TABLES
-def execute_sql(sql, db):
+def create_table(sql, db):
     try:
         connexion = connect(user=DB_USER, password=DB_PASSWORD, database=db, host=DB_HOST)  # połączenie z utworzoną BD
         connexion.autocommit = True
         cursor = connexion.cursor()
         try:
             cursor.execute(sql)
-            print('Query committed!')
+            print('Table created!')
         except DuplicateTable as error:
             print('Duplicate table!', error)
     except OperationalError as error:
@@ -55,5 +56,7 @@ def execute_sql(sql, db):
         connexion.close()
 
 
-create_users_table = execute_sql(CREATE_USERS_TABLE, DB_NAME)
-create_messages_table = execute_sql(CREATE_MESSAGES_TABLE, DB_NAME)
+if __name__ == "__main__":  # aby uniknąć wywoływania kodu w przypadku importowania z tego pliku (zabezpieczenie)
+    create_database()
+    create_users_table = create_table(CREATE_USERS_TABLE, DB_NAME)
+    create_messages_table = create_table(CREATE_MESSAGES_TABLE, DB_NAME)
