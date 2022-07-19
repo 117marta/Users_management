@@ -38,14 +38,9 @@ def print_all_user_messages(cur, user_recipient=None, user_sender=None):
         recipient=user_recipient.id if user_recipient else None,
     )
     for message in messages:
-        if user_recipient:
-            from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
-            to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
-            print(f'From: {from_.username}', f'To: {to_.username}', f'Data: {message.created}', message.text, 100 * '*', sep='\n')
-        if user_sender:
-            from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
-            to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
-            print(f' From: {from_.username}\n To: {to_.username}\n Data: {message.created}\n {message.text}\n {100 * "*"}')
+        from_ = User.load_user_by_id(cursor=cur, user_id=message.from_id)
+        to_ = User.load_user_by_id(cursor=cur, user_id=message.to_id)
+        print(f' From: {from_.username}\n To: {to_.username}\n Data: {message.created}\n {message.text}\n {100 * "*"}')
 
 
 # Główna część programu
