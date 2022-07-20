@@ -13,22 +13,19 @@ def execute_sql(sql, db):
         cursor = cnx.cursor()
         cursor.execute(sql)
         print('Query commited!')
-        return cursor
-        # return list(cursor)  # wyniki zapytania w formie listy
-        # return cursor.fetchall()
+        return cursor.fetchall()
     except OperationalError as err:
         print('Connection error!', err)
+    finally:
+        cursor.close()
+        cnx.close()
 
 
 @app.route("/messages/")
 def get_messages():
     SQL = "SELECT * FROM messages"
     rows = execute_sql(sql=SQL, db=DB_NAME)
-    # return render_template(template_name_or_list="messages.html", rows=rows)
-    sql_result = '{msg_id} | {from_id} | {to_id} | {created} | {text} </br>'
-    for (msg_id, from_id, to_id, created, text) in rows:
-        sql_result += f'{msg_id} | {from_id} | {to_id} | {created} | {text} </br>'
-    return sql_result
+    return render_template(template_name_or_list="messages.html", rows=rows)
 
 
 if __name__ == "__main__":
