@@ -28,5 +28,12 @@ def get_messages():
     return render_template(template_name_or_list="messages.html", rows=rows)
 
 
+@app.route("/users/")
+def get_users():
+    SQL = "SELECT * FROM users"
+    rows = execute_sql(sql=SQL, db=DB_NAME)
+    return render_template(template_name_or_list="users.html", rows=rows)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
