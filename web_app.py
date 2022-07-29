@@ -6,6 +6,7 @@ from password import check_password
 
 
 app = Flask(__name__)  # aktualny plik będzie serwerem Flask
+app.secret_key = '5fd02cfcae9788b77476bb72dbba47170b83a3b66362b82676d632541a0a6768'  # session to be available
 
 
 LOGIN_FORM = """
@@ -73,12 +74,14 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)  # remove the username from the session if it's there
+    session.clear()
     return redirect(url_for('index'))
 
 
 @app.route("/messages/")
 def get_messages():
+    if not session.get('username'):
+        return redirect(location=url_for(endpoint='login'))
     SQL = "SELECT * FROM messages"
     rows = execute_sql(sql=SQL, db=DB_NAME)
     return render_template(template_name_or_list="messages.html", rows=rows)
@@ -86,13 +89,12 @@ def get_messages():
 
 @app.route("/users/")
 def get_users():
+    if not session.get('username'):
+        return redirect(location=url_for(endpoint='login'))
     # SQL = "SELECT id, username FROM users"
     SQL = "SELECT * FROM users"
     rows = execute_sql(sql=SQL, db=DB_NAME)
     return render_template(template_name_or_list="users.html", rows=rows)
-
-
-app.secret_key = '5fd02cfcae9788b77476bb72dbba47170b83a3b66362b82676d632541a0a6768'
 
 
 if __name__ == "__main__":
