@@ -1,6 +1,8 @@
-from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 from psycopg2 import connect, OperationalError
-from flask import Flask, render_template, request, session, escape, redirect, url_for, render_template_string
+from flask import Flask, render_template, request, session, redirect, url_for, render_template_string
+
+from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
+from password import check_password
 
 
 app = Flask(__name__)  # aktualny plik będzie serwerem Flask
@@ -45,8 +47,18 @@ def logout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        session['username'] = request.form['username']
-        return redirect(url_for('index'))
+        current_user = request.form['username']
+        current_password = request.form['password']
+        SQL = f"SELECT * FROM users WHERE username='{current_user}'"
+        rows = execute_sql(sql=SQL, db=DB_NAME)
+        database_user = rows[0][1] if rows else False
+        database_password = rows[0][2] if rows else False
+        if current_user == database_user and check_password(current_password, database_password):
+            session['username'] = request.form['username']
+            session["logged"] = True
+            return redirect(url_for('index'))
+        else:
+            return 'Wprowadź poprawny login i/lub hasło!'
     return LOGIN_FORM  # GET method
 
 
