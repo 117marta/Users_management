@@ -10,12 +10,27 @@ app = Flask(__name__)  # aktualny plik będzie serwerem Flask
 
 LOGIN_FORM = """
 <form method="POST">
-    <p>Username: <input type=text name=username></p>
+    <p>Username: <input type=text name=username placeholder="Enter the username"></p>
     <label for="password">Password:</label>
-    <input type="password" name="password"><br>
-    <input type="submit" value="Zaloguj">
+    <input type="password" name="password" placeholder="Enter the password"><br>
+    <input type="submit" value="Login">
 </form>
 """
+
+
+def execute_sql(sql, db):
+    try:
+        cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db)
+        cnx.autocommit = True
+        cursor = cnx.cursor()
+        cursor.execute(sql)
+        print('Query commited!')
+        return cursor.fetchall()
+    except OperationalError as err:
+        print('Connection error!', err)
+    finally:
+        cursor.close()
+        cnx.close()
 
 
 @app.route('/')
@@ -24,24 +39,18 @@ def index():
         print("Currents user's ID is: %s" % session.get('id'))
         return render_template_string(
             """
-            <p>Zalogowano jako <strong>{{ (session['username']) }}</strong>
-            <a href={{ url_for('logout') }}><button>Wyloguj</button></a></p>
-            <p><a href={{ url_for('get_messages') }}>Wiadomości</a>
-            <a href={{ url_for('get_users') }}>Użytkownicy</a></p>
+            <p>Logged as: <strong>{{ (session['username']) }}</strong>
+            <a href={{ url_for('logout') }}><button>Logout</button></a></p>
+            <p><a href={{ url_for('get_messages') }}>Messages</a>
+            <a href={{ url_for('get_users') }}>Users</a></p>
             """
         )
     return render_template_string(
         """
-        <p>Nie zalogowano!
-        <a href={{ url_for('login') }}><button>Zaloguj</button></a></p>
+        <p>You are not logged in!
+        <a href={{ url_for('login') }}><button>Login</button></a></p>
         """
     )
-
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)  # remove the username from the session if it's there
-    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -58,23 +67,14 @@ def login():
             session["logged"] = True
             return redirect(url_for('index'))
         else:
-            return 'Wprowadź poprawny login i/lub hasło!'
+            return 'Enter the correct login and/or password!'
     return LOGIN_FORM  # GET method
 
 
-def execute_sql(sql, db):
-    try:
-        cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db)
-        cnx.autocommit = True
-        cursor = cnx.cursor()
-        cursor.execute(sql)
-        print('Query commited!')
-        return cursor.fetchall()
-    except OperationalError as err:
-        print('Connection error!', err)
-    finally:
-        cursor.close()
-        cnx.close()
+@app.route('/logout')
+def logout():
+    session.pop('username', None)  # remove the username from the session if it's there
+    return redirect(url_for('index'))
 
 
 @app.route("/messages/")
