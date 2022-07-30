@@ -1,8 +1,8 @@
-from psycopg2 import connect, OperationalError
+from psycopg2 import connect, OperationalError, errors
 from flask import Flask, render_template, request, session, redirect, url_for, render_template_string
 
 from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
-from password import check_password
+from password import check_password, hash_password
 
 
 app = Flask(__name__)  # aktualny plik będzie serwerem Flask
@@ -19,6 +19,16 @@ LOGIN_FORM = """
 """
 
 
+CREATE_USER_FORM = """
+<form method="POST">
+    <p>Username: <input type=text name=username maxlength="30" placeholder="Enter the username"></p>
+    <p><label for="password">Password:</label>
+    <input type="password" name="password" maxlength="30" placeholder="Enter the password"></p>
+    <button type="submit" name="submit" style="background-color:black; color:gold; border-color:red; height:30px; width:100px">Create</button>
+</form>
+"""
+
+
 def execute_sql(sql, db):
     try:
         cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db)
@@ -31,6 +41,20 @@ def execute_sql(sql, db):
         print('Connection error!', err)
     finally:
         cursor.close()
+        cnx.close()
+
+
+def execute_sql_no_returning(sql, db):
+    try:
+        cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db)
+        cnx.autocommit = True
+        cur = cnx.cursor()
+        print('Connected successfully!')
+        cur.execute(sql)
+    except OperationalError as err:
+        print('Connection error!', err)
+    finally:
+        cur.close()
         cnx.close()
 
 
@@ -95,6 +119,27 @@ def get_users():
     SQL = "SELECT * FROM users"
     rows = execute_sql(sql=SQL, db=DB_NAME)
     return render_template(template_name_or_list="users.html", rows=rows)
+
+
+@app.route("/users/create", methods=['GET', 'POST'])
+def create_user():
+    if request.method == "POST":
+        username = request.form.get('username')
+        password = hash_password(request.form.get('password'))
+        if username and password:
+            if len(password) < 5:
+                return 'Password must be at least 5 characters!'
+            else:
+                SQL = f"INSERT INTO users(username, hashed_password) VALUES ('{username}', '{password}');"
+                try:
+                    execute_sql_no_returning(sql=SQL, db=DB_NAME)
+                except errors.UniqueViolation:
+                    return 'User already exists!'
+                return 'User created!'
+        else:
+            return 'Invalid data!'
+    else:
+        return CREATE_USER_FORM
 
 
 if __name__ == "__main__":
