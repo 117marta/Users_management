@@ -1,5 +1,5 @@
 from psycopg2 import connect, OperationalError, errors
-from flask import Flask, render_template, request, session, redirect, url_for, render_template_string
+from flask import Flask, render_template, request, session, redirect, url_for, render_template_string, flash
 
 from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 from password import check_password, hash_password
@@ -9,23 +9,42 @@ app = Flask(__name__)  # aktualny plik będzie serwerem Flask
 app.secret_key = '5fd02cfcae9788b77476bb72dbba47170b83a3b66362b82676d632541a0a6768'  # session to be available
 
 
-LOGIN_FORM = """
+USER_FORM = """
+{% extends "base.html" %}
+{% block title %}Form{% endblock %}
+{% block content %}
+<h1>{{ 'Login' if 'login' in request.url else 'Create an account' }}</h1>
 <form method="POST">
-    <p>Username: <input type=text name=username placeholder="Enter the username"></p>
-    <label for="password">Password:</label>
-    <input type="password" name="password" placeholder="Enter the password"><br>
-    <input type="submit" value="Login">
+    <p>Username: <input type=text name=username maxlength="30" placeholder="Enter the username"></p>
+    <p>Password: <input type="password" name="password" maxlength="30" placeholder="Enter the password"></p>
+    <button type="submit" name="submit" style="background-color:black; color:gold; border-color:red; height:30px; width:100px">Send</button>
 </form>
+{% endblock %}
 """
 
 
-CREATE_USER_FORM = """
-<form method="POST">
-    <p>Username: <input type=text name=username maxlength="30" placeholder="Enter the username"></p>
-    <p><label for="password">Password:</label>
-    <input type="password" name="password" maxlength="30" placeholder="Enter the password"></p>
-    <button type="submit" name="submit" style="background-color:black; color:gold; border-color:red; height:30px; width:100px">Create</button>
-</form>
+INDEX = """
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style>
+        body { background-color: red; }
+        p { color: green; }
+    </style>
+{% endblock %}
+{% block content %}
+    {% if logged %}
+        <p>Logged as: <strong>{{ (session['username']) }}</strong>
+        <a href={{ url_for('logout') }}><button>Logout</button></a></p>
+        <p><a href={{ url_for('get_messages') }}>Messages</a>
+        <a href={{ url_for('get_users') }}>Users</a></p>
+    {% else %}
+        <p>You are not logged in!</p>
+        <p><a href={{ url_for('login') }}><button>Login</button></a>
+        <a href={{ url_for(endpoint='create_user') }}><button>Create account</button></a></p>
+    {% endif %}
+{% endblock %}
 """
 
 
@@ -62,20 +81,8 @@ def execute_sql_no_returning(sql, db):
 def index():
     if 'username' in session:
         print("Currents user's ID is: %s" % session.get('id'))
-        return render_template_string(
-            """
-            <p>Logged as: <strong>{{ (session['username']) }}</strong>
-            <a href={{ url_for('logout') }}><button>Logout</button></a></p>
-            <p><a href={{ url_for('get_messages') }}>Messages</a>
-            <a href={{ url_for('get_users') }}>Users</a></p>
-            """
-        )
-    return render_template_string(
-        """
-        <p>You are not logged in!
-        <a href={{ url_for('login') }}><button>Login</button></a></p>
-        """
-    )
+        return render_template_string(source=INDEX, logged=session["logged"])
+    return render_template_string(source=INDEX)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -90,15 +97,18 @@ def login():
         if current_user == database_user and check_password(current_password, database_password):
             session['username'] = request.form['username']
             session["logged"] = True
+            flash('You are logged in!')
             return redirect(url_for('index'))
         else:
-            return 'Enter the correct login and/or password!'
-    return LOGIN_FORM  # GET method
+            flash('Enter the correct login and/or password!')
+            return redirect(url_for('login'))
+    return render_template_string(source=USER_FORM)
 
 
 @app.route('/logout')
 def logout():
     session.clear()
+    flash('You were successfully logged out!')
     return redirect(url_for('index'))
 
 
@@ -121,7 +131,7 @@ def get_users():
     return render_template(template_name_or_list="users.html", rows=rows)
 
 
-@app.route("/users/create", methods=['GET', 'POST'])
+@app.route("/users/create", endpoint='create_user', methods=['GET', 'POST'])
 def create_user():
     if request.method == "POST":
         username = request.form.get('username')
@@ -140,7 +150,7 @@ def create_user():
         else:
             return 'Invalid data!'
     else:
-        return CREATE_USER_FORM
+        return render_template_string(source=USER_FORM)
 
 
 if __name__ == "__main__":
