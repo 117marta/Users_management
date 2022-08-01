@@ -125,11 +125,12 @@ def get_users():
 def create_user():
     if request.method == "POST":
         username = request.form.get('username')
-        password = hash_password(request.form.get('password'))
+        password = request.form.get('password')
         if username and password:
             if len(password) < 5:
                 return 'Password must be at least 5 characters!'
             else:
+                password = hash_password(password)
                 SQL = f"INSERT INTO users(username, hashed_password) VALUES ('{username}', '{password}');"
                 try:
                     execute_sql_no_returning(sql=SQL, db=DB_NAME)
