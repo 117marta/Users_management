@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+        body {background-color: red; }
+        .time { color: green; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if username_from_session %}
+        <div class="time">
+            Hello!
+            Today is: {{ now }} / {{ strftime('%d-%m-%Y %H:%M:%S') }}
+        </div>
+        <p>Logged as: <strong>{{ username_from_session }}</strong>
+        <a href={{ url_for('logout') }}><button>Logout</button></a></p>
+        <p><a href={{ url_for('get_messages') }}>Messages</a>
+        <a href={{ url_for('get_users') }}>Users</a></p>
+    {% else %}
+        <p>You are not logged in!</p>
+        <p><a href={{ url_for('login') }}><button>Login</button></a>
+        <a href={{ url_for(endpoint='create_user') }}><button>Create an account</button></a></p>
+    {% endif %}
+{% endblock %}

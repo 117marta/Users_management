@@ -1,5 +1,8 @@
+import time
+
 from psycopg2 import connect, OperationalError, errors
 from flask import Flask, render_template, request, session, redirect, url_for, render_template_string, flash
+import datetime
 
 from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 from password import check_password, hash_password
@@ -19,31 +22,6 @@ USER_FORM = """
     <p>Password: <input type="password" name="password" maxlength="30" placeholder="Enter the password"></p>
     <button type="submit" name="submit" style="background-color:black; color:gold; border-color:red; height:30px; width:100px">Send</button>
 </form>
-{% endblock %}
-"""
-
-
-INDEX = """
-{% extends "base.html" %}
-{% block title %}Index{% endblock %}
-{% block head %}
-    {{ super() }}
-    <style>
-        body { background-color: red; }
-        p { color: green; }
-    </style>
-{% endblock %}
-{% block content %}
-    {% if logged %}
-        <p>Logged as: <strong>{{ (session['username']) }}</strong>
-        <a href={{ url_for('logout') }}><button>Logout</button></a></p>
-        <p><a href={{ url_for('get_messages') }}>Messages</a>
-        <a href={{ url_for('get_users') }}>Users</a></p>
-    {% else %}
-        <p>You are not logged in!</p>
-        <p><a href={{ url_for('login') }}><button>Login</button></a>
-        <a href={{ url_for(endpoint='create_user') }}><button>Create account</button></a></p>
-    {% endif %}
 {% endblock %}
 """
 
@@ -81,8 +59,13 @@ def execute_sql_no_returning(sql, db):
 def index():
     if 'username' in session:
         print("Currents user's ID is: %s" % session.get('id'))
-        return render_template_string(source=INDEX, logged=session["logged"])
-    return render_template_string(source=INDEX)
+        context = {
+            'username_from_session': session['username'],
+            'now': datetime.datetime.utcnow(),
+            'strftime': time.strftime,
+        }
+        return render_template(template_name_or_list='index.html', **context)
+    return render_template(template_name_or_list='index.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
