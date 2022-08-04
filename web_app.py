@@ -1,8 +1,7 @@
-import time
-
 from psycopg2 import connect, OperationalError, errors
 from flask import Flask, render_template, request, session, redirect, url_for, render_template_string, flash
 import datetime
+import time
 
 from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
 from password import check_password, hash_password
@@ -57,15 +56,14 @@ def execute_sql_no_returning(sql, db):
 
 @app.route('/')
 def index():
+    context = {
+        'now': datetime.datetime.utcnow(),
+        'strftime': time.strftime,
+    }
     if 'username' in session:
         print("Currents user's ID is: %s" % session.get('id'))
-        context = {
-            'username_from_session': session['username'],
-            'now': datetime.datetime.utcnow(),
-            'strftime': time.strftime,
-        }
-        return render_template(template_name_or_list='index.html', **context)
-    return render_template(template_name_or_list='index.html')
+        context.update({'username_from_session': session['username']})
+    return render_template(template_name_or_list='index.html', **context)
 
 
 @app.route('/login', methods=['GET', 'POST'])
