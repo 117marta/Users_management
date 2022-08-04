@@ -9,10 +9,21 @@
         body {background-color: powderblue}
         h1 {
             color: red;
-            font-family: verdana;
             font-size: 150%;
         }
-        /*p {color: red}*/
+        footer {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            height: 40px;
+            width: 100%;
+            background: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 1px solid white;
+            letter-spacing: 5px;
+        }
     </style>
 </head>
 
@@ -32,11 +43,11 @@
         {% endblock %}
     </div>
 
-    <div id="footer">
+    <footer>
         {% block footer %}
             &copy; Copyright 2022 by <strong>117marta</strong>
         {% endblock %}
-    </div>
+    </footer>
 </body>
 
 </html>
