@@ -78,10 +78,10 @@ def login():
         if current_user == database_user and check_password(current_password, database_password):
             session['username'] = request.form['username']
             session["logged"] = True
-            flash('You are logged in!')
+            flash(message='You are logged in!', category='info')
             return redirect(url_for('index'))
         else:
-            flash('Enter the correct login and/or password!')
+            flash(message='Enter the correct login and/or password!', category='error')
             return redirect(url_for('login'))
     return render_template_string(source=USER_FORM)
 
@@ -89,7 +89,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('You were successfully logged out!')
+    flash(message='You were successfully logged out!', category='info')
     return redirect(url_for('index'))
 
 
@@ -119,7 +119,7 @@ def create_user():
         password = request.form.get('password')
         if username and password:
             if len(password) < 5:
-                flash(message='Password must be at least 5 characters!')
+                flash(message='Password must be at least 5 characters!', category='error')
                 return redirect(location=url_for(endpoint='create_user'))
             else:
                 password = hash_password(password)
@@ -127,12 +127,12 @@ def create_user():
                 try:
                     execute_sql_no_returning(sql=SQL, db=DB_NAME)
                 except errors.UniqueViolation:
-                    flash(message='User already exists!')
+                    flash(message='User already exists!', category='error')
                     return redirect(location=url_for(endpoint='create_user'))
-                flash(message='User created!')
+                flash(message='User created!', category='success')
                 return redirect(location=url_for(endpoint='index'))
         else:
-            flash(message='Invalid data!')
+            flash(message='Invalid data!', category='error')
             return redirect(location=url_for(endpoint='create_user'))
     else:
         return render_template_string(source=USER_FORM)
