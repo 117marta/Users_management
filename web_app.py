@@ -119,17 +119,21 @@ def create_user():
         password = request.form.get('password')
         if username and password:
             if len(password) < 5:
-                return 'Password must be at least 5 characters!'
+                flash(message='Password must be at least 5 characters!')
+                return redirect(location=url_for(endpoint='create_user'))
             else:
                 password = hash_password(password)
                 SQL = f"INSERT INTO users(username, hashed_password) VALUES ('{username}', '{password}');"
                 try:
                     execute_sql_no_returning(sql=SQL, db=DB_NAME)
                 except errors.UniqueViolation:
-                    return 'User already exists!'
-                return 'User created!'
+                    flash(message='User already exists!')
+                    return redirect(location=url_for(endpoint='create_user'))
+                flash(message='User created!')
+                return redirect(location=url_for(endpoint='index'))
         else:
-            return 'Invalid data!'
+            flash(message='Invalid data!')
+            return redirect(location=url_for(endpoint='create_user'))
     else:
         return render_template_string(source=USER_FORM)
 
