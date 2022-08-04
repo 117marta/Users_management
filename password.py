@@ -36,7 +36,7 @@ def hash_password(password, salt=None):
     if len(salt) < 16:
         salt += ("z" * (16 - len(salt)))
 
-    if len(salt) > 16:
+    if len(salt) >= 16:
         salt = salt[:16]
 
     sha = hashlib.sha256()  # algorytm haszujący SHA256
