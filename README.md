@@ -15,13 +15,15 @@ Simple messaging server.
 
 
 ## General info
-The aim of this project was to learn how to integrate databases with object-oriented programing.
+The aim of this project was to learn how to integrate databases with object-oriented programing.<br>
+#Upadate: I decided to extend my project with Flask
 
 
 ## Technologies Used
 Project was created with:
 * Python version: 3.6.9
 * psycopg2-binary version: 2.9.3
+* Flask version: 2.0.3
 
 
 ## Features
@@ -50,25 +52,56 @@ is no corresponding row); delete a row from the database; changes of any attribu
 change in the database after last synchronization.
 * File `users.py`: a simple console application for user management. It should handle parameters passed to it from the
 console level - argparse library was used for it.
-* File `messages.py`: another console application that allows to send messages between users. 
+* File `messages.py`: another console application that allows to send messages between users.<br>
+#Update:<br>
+* File `web_app.py`: web application where you can see the results in your browser.
 
 
 ## Screenshots
 
-### Main page:
-![Strona główna](/screenshots/1.png)
+### Console app
+
+#### Create a user (with password validation):
+![Create_user](screenshots/Users_create.png)
+
+#### List of all user:
+![List of all user](screenshots/Users_all.png)
+
+#### Send a message:
+![Message_send](screenshots/Message_send.png)
+
+#### Inbox:
+![Message_send](screenshots/Messages_inbox.png)
+
+#### Outbox:
+![Message_send](screenshots/Messages_outbox.png)
+
+### Web app
+
+#### Main page:
+![Main_page](screenshots/Flask_index.png)
+
+#### Login page:
+![Login](screenshots/Flask_login.png)
 
 
 ## Setup
 Project requirements are in _requirements.txt_. <br>
 To get started:
-* ```pip install -r requirements.txt```
+```
+pip install -r requirements.txt
+```
 
 
 ## Usage
-* After you clone this repo to your desktop, go to its root directory and run ```pip install -r requirements.txt```
+* After you clone this repo to your desktop, go to its root directory and run pip install -r `requirements.txt`
 to install its dependencies
-* You will be able to access it from console, for example when you want to list all users: ```python users.py -l```
+* You will be able to access it from console, for example when you want to list all users: `python users.py -l`<br>
+All arguments are listed in `users.py` and `messages.py` files.
+* To run development server, go to `web_app.py` and click `Run`. You will be able to access it at: 
+```
+http://127.0.0.1:5000/
+```
 
 
 ## Project Status
