@@ -6,15 +6,21 @@
     <title>{% block title %}{% endblock %} - Message Server</title>
     {% endblock %}
     <style>
-        body {background-color: powderblue}
+        html, body {height: 100%;}
+        body {
+            background-color: powderblue;
+            display: flex;
+            flex-direction: column;
+        }
         h1 {
             color: red;
             font-size: 150%;
         }
+        .content {
+          flex: 1 0 auto;
+        }
         footer {
-            position: absolute;
-            bottom: 0;
-            right: 0;
+            flex-shrink: 0;
             height: 40px;
             width: 100%;
             background: #ccc;
@@ -24,7 +30,6 @@
             border-top: 1px solid white;
             letter-spacing: 5px;
         }
-        /*Flash - message catogory:*/
         .flashes { padding-left: 0; }
         .flashes li {
             list-style: none;
