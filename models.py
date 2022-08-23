@@ -1,13 +1,9 @@
 from password import hash_password
-from confidential import DB_USER, DB_PASSWORD, DB_HOST, DB_NAME
-from psycopg2 import connect
 
-
-# USER CLASS
 
 class User:
 
-    def __init__(self, username="", password="", salt=""):
+    def __init__(self, username="", password="", salt=None):
         # nie powinien być dostępny do edycji z zewnątrz - poza klasą (_id)
         # nowo utworzony obiekt nie będzie od razu synchronizowany (-1). Dane z DB != -1
         self._id = -1  # tylko do odczytu
@@ -101,8 +97,6 @@ class User:
         return True
 
 
-# MESSAGE CLASS
-
 class Message:
 
     def __init__(self, from_id, to_id, text):
@@ -157,47 +151,3 @@ class Message:
             loaded_message._created = created
             messages.append(loaded_message)
         return messages
-
-
-########################################################################################################################
-# Do testowania...
-
-cnx = connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=DB_NAME)
-cnx.autocommit = True
-cur = cnx.cursor()
-
-# u1 = User('user_1', 'silne_hasło', 'gYrcy8xsm49lIq1r')
-# u1.save_to_db(cur)
-
-u2 = User()
-get_user = u2.load_user_by_id(cur, 1)
-# print('u2:', get_user.username)
-
-u3 = User()
-get_users = u3.load_all_users(cur)
-# print('u3:', get_users)
-
-# u4 = User('user_zmodyfikowany', 'silne_hasło2', 'gYrcy8xsm49lIq1r')
-# update_user = u4.save_to_db(cur)
-# print(update_user)
-
-u5 = User()
-get_user = u2.load_user_by_id(cur, 7)
-# print('u5:', get_user.username)
-delete_user = u5.delete_user(cur)
-
-u6 = User()
-get_user = u6.load_user_by_username(cur, 'user_testowy')
-# print('u6:', get_user.username)
-
-# m1 = Message(4, 9, 'Wiadomość testowa!')
-# m1.save_to_db(cur)
-# m1 = Message(1, 7, 'Wiadomość dnia!!!')
-# m1.save_to_db(cur)
-
-# m2 = Message(1, 7, 'Wiadomość dnia!!!')
-# get_msgs = m2.load_all_messages(cur)  # wszystkie wiadomości
-# get_msgs = m2.load_all_messages(cur, 30)  # wiadomości do adresata o podanym id
-# print(g   et_msgs)
-# for m in get_msgs:
-#     print('M:', m.text)
