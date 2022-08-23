@@ -106,8 +106,8 @@ def get_messages():
 def get_users():
     if not session.get('username'):
         return redirect(location=url_for(endpoint='login'))
-    # SQL = "SELECT id, username FROM users"
-    SQL = "SELECT * FROM users"
+    SQL = "SELECT id, username FROM users"
+    # SQL = "SELECT * FROM users"
     rows = execute_sql(sql=SQL, db=DB_NAME)
     return render_template(template_name_or_list="users.html", rows=rows)
 
