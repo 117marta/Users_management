@@ -15,8 +15,9 @@ Simple messaging server.
 
 
 ## General info
-The aim of this project was to learn how to integrate databases with object-oriented programing.<br>
-#Upadate: I decided to extend my project with Flask
+The aim of this project was to learn how to integrate databases with object-oriented programing. I created a console
+application for users management and to send messages between them.<br>
+#Upadate: I decided to extend my project to web application using Flask.
 
 
 ## Technologies Used
